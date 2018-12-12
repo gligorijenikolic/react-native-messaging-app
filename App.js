@@ -5,6 +5,7 @@ import Status from './components/Status';
 import MessageList from './components/MessageList';
 import { createImageMessage, createLocationMessage, createTextMessage } from './utils/MessageUtils';
 import Toolbar from './components/Toolbar';
+import ImageGrid from './components/ImageGrid';
 
 export default class App extends React.Component {
   state = {
@@ -20,6 +21,12 @@ export default class App extends React.Component {
     ],
     isInputFocused: false
   };
+
+  renderInputMethodEditor = () => (
+    <View style={styles.inputMethodEditor}>
+      <ImageGrid />
+    </View>
+  );
 
   handlePressMessage = ({ id, type }) => {
     switch (type) {
@@ -99,9 +106,17 @@ export default class App extends React.Component {
     );
   }
 
-  renderInputMethodEditor() {
-    return <View style={styles.inputMethodEditor} />;
-  }
+  handlePressImage = uri => {
+    const { messages } = this.state;
+    this.setState({
+      messages: [createImageMessage(uri), ...messages]
+    });
+  };
+  renderInputMethodEditor = () => (
+    <View style={styles.inputMethodEditor}>
+      <ImageGrid onPressImage={this.handlePressImage} />
+    </View>
+  );
 
   renderToolbar() {
     const { isInputFocused } = this.state;
