@@ -1,4 +1,4 @@
-import { StyleSheet, View, Alert } from "react-native";
+import { StyleSheet, View, Alert, Image, TouchableHighlight } from "react-native";
 import React from "react";
 import Status from './components/Status';
 
@@ -8,6 +8,7 @@ import { createImageMessage, createLocationMessage, createTextMessage } from './
 
 export default class App extends React.Component {
   state = {
+    fullscreenImageId: null,
     messages: [
       createImageMessage("https://unsplash.it/300/300"),
       createTextMessage("World"),
@@ -43,6 +44,9 @@ export default class App extends React.Component {
           ]
         );
         break;
+      case 'image':
+        this.setState({ fullscreenImageId: id });
+      break;
       default:
         break;
     }
@@ -68,6 +72,25 @@ export default class App extends React.Component {
     return <View style={styles.toolbar} />;
   }
 
+  renderFullscreenImage = () => {
+    const { messages, fullscreenImageId } = this.state;
+
+    if (!fullscreenImageId) return null;
+    const image = messages.find(message => message.id === fullscreenImageId);
+
+    if (!image) return null;
+    const { uri } = image;
+
+    return (
+      <TouchableHighlight
+        style={styles.fullscreenOverlay}
+        onPress={this.dismissFullscreenImage}
+      >
+        <Image style={styles.fullscreenImage} source={{ uri }} />
+      </TouchableHighlight>
+    );
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -75,6 +98,7 @@ export default class App extends React.Component {
         {this.renderMessageList()}
         {this.renderToolbar()}
         {this.renderInputMethodEditor()}
+        {this.renderFullscreenImage()}
       </View>
     );
   }
@@ -97,5 +121,14 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "rgba(0,0,0,0.04)",
     backgroundColor: "white"
+  },
+  fullscreenOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "black",
+    zIndex: 2
+  },
+  fullscreenImage: {
+    flex: 1,
+    resizeMode: "contain"
   }
 });
