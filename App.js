@@ -6,6 +6,9 @@ import MessageList from './components/MessageList';
 import { createImageMessage, createLocationMessage, createTextMessage } from './utils/MessageUtils';
 import Toolbar from './components/Toolbar';
 import ImageGrid from './components/ImageGrid';
+import KeyboardState from './components/KeyboardState';
+import MeasureLayout from './components/MeasureLayout';
+import MessagingContainer, { INPUT_METHOD } from './components/MessagingContainer';
 
 export default class App extends React.Component {
   state = {
@@ -19,7 +22,8 @@ export default class App extends React.Component {
         longitude: -122.4324
       })
     ],
-    isInputFocused: false
+    isInputFocused: false,
+    inputMethod: INPUT_METHOD.NONE
   };
 
   renderInputMethodEditor = () => (
@@ -60,8 +64,15 @@ export default class App extends React.Component {
     }
   };
 
+  handleChangeInputMethod = inputMethod => {
+    this.setState({ inputMethod });
+  };
+
   handlePressToolbarCamera = () => {
-    // ...
+    this.setState({
+      isInputFocused: false,
+      inputMethod: INPUT_METHOD.CUSTOM
+    });
   };
 
   handlePressToolbarLocation = () => {
@@ -154,12 +165,27 @@ export default class App extends React.Component {
   };
 
   render() {
+    const { inputMethod } = this.state;
     return (
       <View style={styles.container}>
         <Status />
-        {this.renderMessageList()}
-        {this.renderToolbar()}
-        {this.renderInputMethodEditor()}
+        <MeasureLayout>
+          {layout => (
+            <KeyboardState layout={layout}>
+              {keyboardInfo => (
+                <MessagingContainer
+                  {...keyboardInfo}
+                  inputMethod={inputMethod}
+                  onChangeInputMethod={this.handleChangeInputMethod}
+                  renderInputMethodEditor={this.renderInputMethodEditor}
+                >
+                  {this.renderMessageList()}
+                  {this.renderToolbar()}
+                </MessagingContainer>
+              )}
+            </KeyboardState>
+          )}
+        </MeasureLayout>
         {this.renderFullscreenImage()}
       </View>
     );
